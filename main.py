@@ -1,4 +1,5 @@
 import os
+import smtplib
 from datetime import date
 from flask import Flask, abort, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap5
@@ -7,18 +8,25 @@ from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
+
+from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
-# Import your forms from the forms.py
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Length, Regexp
+
 from forms import CreatePostForm, LoginForm, RegisterForm, CommentForm
 from functools import wraps
 from flask import abort
 
+email = "suskidee@gmail.com"
+password = "szkpptbsaahmarjx"
+
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
-print(os.getenv("FLASK_KEY"))
 
 # TODO: Configure Flask-Login
 login_manager = LoginManager()
@@ -50,7 +58,7 @@ def admin_only(f):
 
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI")
 db = SQLAlchemy()
 db.init_app(app)
 login_manager = LoginManager()
@@ -104,6 +112,15 @@ class Comment(db.Model):
 
 with app.app_context():
     db.create_all()
+
+
+class LoginsForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email address', validators=[DataRequired()])
+    phone = StringField('Phone number', validators=[DataRequired(), Regexp(r'^\d{11}$', message='Invalid phone number'),
+                                                    Length(max=11)])
+    message = TextAreaField('Message', validators=[DataRequired()])
+    submit = SubmitField("Send")
 
 
 # TODO: Use Werkzeug to hash the user's password when creating a new user.
@@ -260,8 +277,31 @@ def about():
     return render_template("about.html", current_user=current_user)
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["POST", "GET"])
 def contact():
+    login_form = LoginsForm()
+    login_form.validate_on_submit()
+    print(login_form.validate_on_submit())
+    if login_form.validate_on_submit() and request.method == "POST":
+        name = request.form['name']
+        from_email = request.form['email']
+        phone = request.form['phone']
+        message = request.form['message']
+
+        connection = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        connection.ehlo()
+        connection.login(email, password)
+        connection.sendmail(
+            from_addr=email,
+            to_addrs=email,
+            msg=f"subject:New message from {name}\n\nPhone no: {phone}\nEmail: {from_email}\n\n\n{message}"
+        )
+        flash('Message sent.', 'info')
+        return redirect(url_for('contact', current_user=current_user))
+
+    else:
+        return render_template("contact.html", form=login_form, current_user=current_user)
+
     return render_template("contact.html", current_user=current_user)
 
 
