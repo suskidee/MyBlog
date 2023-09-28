@@ -10,7 +10,6 @@ from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 
 from flask_wtf import FlaskForm
-from sqlalchemy.dialects import postgresql
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
 from wtforms import StringField, TextAreaField, SubmitField
