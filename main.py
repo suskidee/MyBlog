@@ -13,12 +13,9 @@ from sqlalchemy.orm import relationship
 from forms import CreatePostForm, LoginForm, RegisterForm, CommentForm
 from functools import wraps
 from flask import abort
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('FLASK_KEY')
+app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 print(os.getenv("FLASK_KEY"))
@@ -53,7 +50,7 @@ def admin_only(f):
 
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DB_URI")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 db = SQLAlchemy()
 db.init_app(app)
 login_manager = LoginManager()
