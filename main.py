@@ -63,7 +63,6 @@ db = SQLAlchemy()
 db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-print(os.getenv("DB_URI"))
 
 
 @login_manager.user_loader
@@ -173,7 +172,6 @@ def login():
             return redirect(url_for('login'))
         else:
             login_user(user)
-            print(login_user(user))
             return redirect(url_for('get_all_posts'))
 
     return render_template("login.html", form=form)
