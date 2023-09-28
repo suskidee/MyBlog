@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 
 from flask_wtf import FlaskForm
+from sqlalchemy.dialects import postgresql
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
 from wtforms import StringField, TextAreaField, SubmitField
@@ -22,9 +23,8 @@ from flask import abort
 email = "suskidee@gmail.com"
 password = "szkpptbsaahmarjx"
 
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
+app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -58,7 +58,7 @@ def admin_only(f):
 
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://posts_elnf_user:1uJmMuzVLhStZpoqUNEio4X85NuLsiwG@dpg-ckaecnsg66mc73cufqo0-a.oregon-postgres.render.com/posts_elnf'
 db = SQLAlchemy()
 db.init_app(app)
 login_manager = LoginManager()
